@@ -1,12 +1,49 @@
-# app/utils.py
-import requests
-from bs4 import BeautifulSoup
+﻿def get_keywords(seed_keyword):
+    seed = seed_keyword.strip().lower()
 
-def get_keywords(seed_keyword):
-    # This function would normally call an external API or scrape a website
-    # For demonstration, we'll return mock data
-    return [
-        {"keyword": f"{seed_keyword} example 1", "volume": 1000, "competition": 0.5},
-        {"keyword": f"{seed_keyword} example 2", "volume": 500, "competition": 0.3},
-        {"keyword": f"{seed_keyword} example 3", "volume": 2000, "competition": 0.7},
+    keyword_rows = [
+        {
+            "keyword": f"{seed}",
+            "volume": 4400,
+            "competition": "Medium",
+            "intent": "Commercial",
+            "difficulty": 47
+        },
+        {
+            "keyword": f"best {seed}",
+            "volume": 2900,
+            "competition": "High",
+            "intent": "Commercial",
+            "difficulty": 61
+        },
+        {
+            "keyword": f"{seed} tools",
+            "volume": 1900,
+            "competition": "Medium",
+            "intent": "Commercial",
+            "difficulty": 52
+        },
+        {
+            "keyword": f"{seed} strategy",
+            "volume": 1300,
+            "competition": "Low",
+            "intent": "Informational",
+            "difficulty": 35
+        },
+        {
+            "keyword": f"{seed} checklist",
+            "volume": 880,
+            "competition": "Low",
+            "intent": "Informational",
+            "difficulty": 28
+        },
+        {
+            "keyword": f"{seed} examples",
+            "volume": 1200,
+            "competition": "Low",
+            "intent": "Informational",
+            "difficulty": 33
+        }
     ]
+
+    return keyword_rows

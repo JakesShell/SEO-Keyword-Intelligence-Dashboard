@@ -1,46 +1,78 @@
-<!-- app/templates/index.html -->
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Keyword Research Tool</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <title>SEO Keyword Intelligence Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('styles') }}">
 </head>
 <body>
-    <div class="container">
-        <h1>Keyword Research Tool</h1>
-        <form method="POST" class="keyword-form">
-            <input type="text" name="seed_keyword" placeholder="Enter seed keyword" required>
-            <button type="submit"><i class="fas fa-search"></i> Analyze</button>
-        </form>
+    <div class="page-shell">
+        <div class="container">
+            <h1>SEO Keyword Intelligence Dashboard</h1>
+            <p class="subtitle">
+                Explore keyword ideas, estimated search demand, ranking difficulty, and search intent from a seed keyword.
+            </p>
 
-        {% if keywords %}
-        <h2>Keyword Results</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Keyword</th>
-                    <th>Search Volume</th>
-                    <th>Competition</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for keyword in keywords %}
-                <tr>
-                    <td>{{ keyword.keyword }}</td>
-                    <td>{{ keyword.volume }}</td>
-                    <td>{{ keyword.competition }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <form method="POST" action="/download">
-            <input type="hidden" name="keywords[]" value="{{ keywords|tojson }}">
-            <button type="submit" class="download-btn"><i class="fas fa-download"></i> Download CSV</button>
-        </form>
-        {% endif %}
+            <form method="POST" class="keyword-form">
+                <label for="seed_keyword">Seed Keyword</label>
+                <input
+                    type="text"
+                    id="seed_keyword"
+                    name="seed_keyword"
+                    placeholder="Enter a seed keyword"
+                    value="{{ seed_keyword }}"
+                    required
+                >
+                <button type="submit">Analyze Keywords</button>
+            </form>
+
+            {% if error %}
+                <p class="error-message">{{ error }}</p>
+            {% endif %}
+
+            {% if keywords %}
+                <div class="results-header">
+                    <h2>Keyword Opportunities</h2>
+                    <form method="POST" action="/download">
+                        <input type="hidden" name="seed_keyword" value="{{ seed_keyword }}">
+                        <button type="submit" class="download-btn">Download CSV</button>
+                    </form>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Keyword</th>
+                            <th>Search Volume</th>
+                            <th>Competition</th>
+                            <th>Intent</th>
+                            <th>Difficulty</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for keyword in keywords %}
+                        <tr>
+                            <td>{{ keyword.keyword }}</td>
+                            <td>{{ keyword.volume }}</td>
+                            <td>{{ keyword.competition }}</td>
+                            <td>{{ keyword.intent }}</td>
+                            <td>{{ keyword.difficulty }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <div class="insights-box">
+                    <h3>Practical SEO Notes</h3>
+                    <ul>
+                        <li>Start with lower-difficulty keywords to build early visibility.</li>
+                        <li>Match intent before writing content so pages serve the right audience need.</li>
+                        <li>Group related keyword ideas into one content cluster instead of separate thin pages.</li>
+                    </ul>
+                </div>
+            {% endif %}
+        </div>
     </div>
 </body>
 </html>
