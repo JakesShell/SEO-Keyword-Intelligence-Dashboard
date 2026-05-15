@@ -97,15 +97,42 @@
                 </div>
 
                 <aside class="hero-console">
-                    <div class="console-pulse"></div>
-                    <p class="eyebrow">Campaign Health</p>
-                    {% if campaign_recommendation %}
-                        <strong>{{ campaign_recommendation.campaign_health }}%</strong>
-                        <span>{{ campaign_recommendation.verdict }}</span>
-                    {% else %}
-                        <strong>AI</strong>
-                        <span>Search intelligence prepared for cloud deployment and AI-assisted workflows</span>
-                    {% endif %}
+                    <div class="ai-search-visual" aria-hidden="true">
+                        <div class="scan-grid"></div>
+                        <div class="scan-beam"></div>
+
+                        <div class="ai-core">
+                            <span></span>
+                            <strong>AI</strong>
+                        </div>
+
+                        <div class="orbit orbit-one">
+                            <i></i>
+                        </div>
+
+                        <div class="orbit orbit-two">
+                            <i></i>
+                        </div>
+
+                        <div class="orbit orbit-three">
+                            <i></i>
+                        </div>
+
+                        <div class="signal-chip chip-one">Intent</div>
+                        <div class="signal-chip chip-two">Forecast</div>
+                        <div class="signal-chip chip-three">Cluster</div>
+                    </div>
+
+                    <div class="console-copy">
+                        <p class="eyebrow">Campaign Health</p>
+                        {% if campaign_recommendation %}
+                            <strong>{{ campaign_recommendation.campaign_health }}%</strong>
+                            <span>{{ campaign_recommendation.verdict }}</span>
+                        {% else %}
+                            <strong>AI Search</strong>
+                            <span>Scanning keyword signals, clustering demand, and preparing cloud-ready content workflows.</span>
+                        {% endif %}
+                    </div>
                 </aside>
             </div>
         </section>
