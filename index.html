@@ -9,6 +9,7 @@
 <body>
     <div class="signal-orb orb-one"></div>
     <div class="signal-orb orb-two"></div>
+    <div class="signal-line"></div>
 
     <main class="app-shell">
         <section class="hero-panel">
@@ -27,16 +28,28 @@
                 </button>
             </nav>
 
+            <div class="status-flow">
+                <span>Keyword Intake</span>
+                <i></i>
+                <span>Opportunity Scoring</span>
+                <i></i>
+                <span>AI Brief Queue</span>
+                <i></i>
+                <span>Human Review</span>
+                <i></i>
+                <span>CSV Export</span>
+            </div>
+
             <div class="hero-grid">
                 <div class="hero-copy">
                     <p class="eyebrow">AI-Ready Content Forecasting Platform</p>
                     <h2>Turn keyword demand into ranked content opportunities, AI briefs, and cloud-ready marketing workflows.</h2>
                     <p>
                         SearchOps analyzes a seed topic, groups keyword clusters, scores opportunity,
-                        forecasts traffic potential, and prepares content teams for AI-assisted planning.
+                        forecasts organic traffic potential, and prepares content teams for AI-assisted planning.
                     </p>
 
-                    <form method="POST" class="search-card">
+                    <form method="POST" class="search-card" id="analysisForm">
                         <div class="form-grid">
                             <label>
                                 Seed Keyword
@@ -71,13 +84,10 @@
                         </div>
 
                         <div class="action-row">
-                            <button class="primary-button ripple-button" type="submit" data-ripple>
+                            <button class="primary-button ripple-button" type="submit" data-ripple id="analyzeButton">
                                 Analyze Search Signals
                             </button>
-
-                            {% if keywords %}
-                                <form method="POST" action="/download"></form>
-                            {% endif %}
+                            <span class="loading-pill" id="loadingPill">Scanning keyword cloud...</span>
                         </div>
                     </form>
 
@@ -88,10 +98,10 @@
 
                 <aside class="hero-console">
                     <div class="console-pulse"></div>
-                    <p class="eyebrow">Cloud Workflow Readiness</p>
-                    {% if summary %}
-                        <strong>{{ summary.avg_opportunity }}%</strong>
-                        <span>Average opportunity score across analyzed keyword signals</span>
+                    <p class="eyebrow">Campaign Health</p>
+                    {% if campaign_recommendation %}
+                        <strong>{{ campaign_recommendation.campaign_health }}%</strong>
+                        <span>{{ campaign_recommendation.verdict }}</span>
                     {% else %}
                         <strong>AI</strong>
                         <span>Search intelligence prepared for cloud deployment and AI-assisted workflows</span>
@@ -115,16 +125,58 @@
                 </article>
 
                 <article class="metric-card">
-                    <span>Quick Wins</span>
+                    <span>Revenue-Ready Opportunities</span>
                     <strong>{{ summary.quick_wins }}</strong>
                     <p>High-opportunity keywords with manageable difficulty</p>
                 </article>
 
                 <article class="metric-card">
-                    <span>Forecast Visits</span>
+                    <span>Organic Traffic Forecast</span>
                     <strong>{{ "{:,}".format(summary.forecast) }}</strong>
-                    <p>Estimated monthly organic visit potential</p>
+                    <p>Estimated monthly visit potential</p>
                 </article>
+            </section>
+
+            <section class="panel recommendation-panel reveal-section">
+                <div class="recommendation-grid">
+                    <div>
+                        <p class="eyebrow">Executive Campaign Recommendation</p>
+                        <h2>{{ campaign_recommendation.verdict }}</h2>
+                        <p>{{ campaign_recommendation.executive_summary }}</p>
+                    </div>
+
+                    <div class="recommendation-score">
+                        <span>Campaign Health</span>
+                        <strong>{{ campaign_recommendation.campaign_health }}%</strong>
+                    </div>
+
+                    <div class="recommendation-score risk-{{ campaign_recommendation.seo_risk|lower }}">
+                        <span>SEO Risk Level</span>
+                        <strong>{{ campaign_recommendation.seo_risk }}</strong>
+                    </div>
+                </div>
+
+                <div class="sprint-grid">
+                    <div>
+                        <span>Best Starting Keyword</span>
+                        <strong>{{ campaign_recommendation.best_starting_keyword }}</strong>
+                    </div>
+                    <div>
+                        <span>Strongest Cluster</span>
+                        <strong>{{ campaign_recommendation.strongest_cluster }}</strong>
+                    </div>
+                    <div>
+                        <span>Business Impact</span>
+                        <strong>{{ campaign_recommendation.business_impact }}</strong>
+                    </div>
+                </div>
+
+                <div class="sprint-list">
+                    <h3>Recommended First Content Sprint</h3>
+                    {% for item in campaign_recommendation.first_sprint %}
+                        <p>{{ loop.index }}. {{ item }}</p>
+                    {% endfor %}
+                </div>
             </section>
 
             <section class="content-grid">
@@ -211,6 +263,23 @@
                 </div>
             </section>
 
+            <section class="panel security-panel reveal-section">
+                <div class="section-heading">
+                    <p class="eyebrow">Security + Cloud Readiness</p>
+                    <h2>Safe demo architecture with production-minded controls</h2>
+                </div>
+
+                <div class="security-grid">
+                    {% for item in security_panel %}
+                        <div class="security-card">
+                            <span>{{ item.status }}</span>
+                            <h3>{{ item.control }}</h3>
+                            <p>{{ item.detail }}</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </section>
+
             <section class="panel table-panel reveal-section">
                 <div class="section-heading">
                     <p class="eyebrow">Keyword Intelligence Table</p>
@@ -229,7 +298,7 @@
                                 <th>Opportunity</th>
                                 <th>Forecast</th>
                                 <th>Content Type</th>
-                                <th>Workflow</th>
+                                <th>AI Content Production Status</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -263,8 +332,8 @@
                 <p class="eyebrow">Waiting For Signal</p>
                 <h2>Enter a seed keyword to activate the SearchOps intelligence layer.</h2>
                 <p>
-                    The dashboard will generate opportunity scoring, clusters, cloud workflow status,
-                    AI brief guidance, and a CSV-ready content forecast.
+                    Try one of these: <strong>cloud security monitoring</strong>, <strong>ai workflow automation</strong>,
+                    <strong>digital asset management</strong>, or <strong>saas content strategy</strong>.
                 </p>
             </section>
         {% endif %}
@@ -297,7 +366,6 @@
                 ripple.style.left = `${event.clientX - rect.left - size / 2}px`;
                 ripple.style.top = `${event.clientY - rect.top - size / 2}px`;
                 this.appendChild(ripple);
-
                 setTimeout(() => ripple.remove(), 650);
             });
         });
@@ -311,6 +379,17 @@
                 briefToggle.textContent = briefContent.classList.contains("open")
                     ? "Hide AI Brief"
                     : "Reveal AI Brief";
+            });
+        }
+
+        const analysisForm = document.getElementById("analysisForm");
+        const loadingPill = document.getElementById("loadingPill");
+        const analyzeButton = document.getElementById("analyzeButton");
+
+        if (analysisForm && loadingPill && analyzeButton) {
+            analysisForm.addEventListener("submit", () => {
+                loadingPill.classList.add("active");
+                analyzeButton.textContent = "Scanning...";
             });
         }
     </script>

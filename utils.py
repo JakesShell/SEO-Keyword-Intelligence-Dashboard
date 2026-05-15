@@ -16,14 +16,14 @@ def stable_number(text, minimum, maximum):
 
 
 def classify_intent(keyword):
-    if any(token in keyword for token in ["best", "tools", "software", "platform", "service", "agency"]):
-        return "Commercial"
     if any(token in keyword for token in ["pricing", "cost", "buy", "hire", "near me", "consultant"]):
         return "Transactional"
+    if any(token in keyword for token in ["best", "tools", "software", "platform", "service", "agency"]):
+        return "Commercial"
+    if any(token in keyword for token in ["dashboard", "system", "workflow", "automation"]):
+        return "Operational"
     if any(token in keyword for token in ["how", "guide", "checklist", "examples", "strategy", "template"]):
         return "Informational"
-    if any(token in keyword for token in ["dashboard", "system", "workflow"]):
-        return "Operational"
     return "Exploratory"
 
 
@@ -79,6 +79,7 @@ def calculate_opportunity(volume, difficulty, intent):
         "Informational": 9,
         "Exploratory": 7,
     }.get(intent, 8)
+
     score = round(volume_component + difficulty_component + intent_bonus)
     return max(1, min(score, 100))
 
@@ -93,11 +94,11 @@ def score_band(score):
 
 def priority_from_score(score, difficulty):
     if score >= 75 and difficulty < 65:
-        return "P1 Quick Win"
+        return "P1 Revenue-Ready Opportunity"
     if score >= 60:
-        return "P2 Build Cluster"
+        return "P2 Build Content Cluster"
     if difficulty >= 70:
-        return "P4 Long-Term Bet"
+        return "P4 Long-Term Authority Bet"
     return "P3 Support Content"
 
 
@@ -138,7 +139,7 @@ def generate_keyword_rows(seed, market, audience, content_goal):
 
     rows = []
 
-    for index, pattern in enumerate(keyword_patterns, start=1):
+    for pattern in keyword_patterns:
         keyword = pattern.format(seed=seed)
         intent = classify_intent(keyword)
         difficulty = stable_number(keyword + market, 24, 82)
@@ -195,10 +196,66 @@ def build_clusters(keywords):
 
 def action_for_cluster(cluster_name, avg_score):
     if avg_score >= 75:
-        return f"Build this {cluster_name.lower()} cluster first."
+        return f"Build this {cluster_name.lower()} cluster first for near-term growth."
     if avg_score >= 55:
         return f"Add this {cluster_name.lower()} cluster to the next content sprint."
-    return f"Keep this {cluster_name.lower()} cluster as supporting content."
+    return f"Keep this {cluster_name.lower()} cluster as supporting authority content."
+
+
+def campaign_health_score(keywords):
+    avg_opportunity = round(sum(row["opportunity_score"] for row in keywords) / len(keywords))
+    avg_difficulty = round(sum(row["difficulty"] for row in keywords) / len(keywords))
+    ready_for_ai = sum(1 for row in keywords if row["ai_workflow_status"] == "Ready For AI Brief")
+    buyer_intent = sum(1 for row in keywords if row["intent"] in {"Commercial", "Transactional"})
+
+    score = avg_opportunity + (ready_for_ai * 2) + (buyer_intent * 2) - max(0, avg_difficulty - 55)
+    return max(1, min(round(score), 100))
+
+
+def seo_risk_level(keywords):
+    avg_difficulty = round(sum(row["difficulty"] for row in keywords) / len(keywords))
+    high_competition = sum(1 for row in keywords if row["competition"] == "High")
+
+    if avg_difficulty >= 68 or high_competition >= 7:
+        return "High"
+    if avg_difficulty >= 50 or high_competition >= 4:
+        return "Medium"
+    return "Low"
+
+
+def build_campaign_recommendation(seed, keywords, clusters, summary):
+    top_keyword = keywords[0]
+    strongest_cluster = clusters[0]
+    risk = seo_risk_level(keywords)
+    health = campaign_health_score(keywords)
+
+    if health >= 75 and risk != "High":
+        verdict = "Launch First Content Sprint"
+        executive_summary = f"Start with {top_keyword['keyword']} and build the {strongest_cluster['name']} cluster first."
+    elif health >= 55:
+        verdict = "Build Cluster With Review"
+        executive_summary = f"Use {top_keyword['keyword']} as the lead asset, but review difficulty before scaling."
+    else:
+        verdict = "Research Before Production"
+        executive_summary = f"Use {seed.title()} as a research theme before committing major content budget."
+
+    first_sprint = [
+        f"Publish one {top_keyword['recommended_content_type']} targeting {top_keyword['keyword']}.",
+        f"Support it with two articles from the {strongest_cluster['name']} cluster.",
+        "Move high-opportunity terms into the AI brief queue.",
+        "Keep commercial pages under human review before publishing.",
+    ]
+
+    return {
+        "verdict": verdict,
+        "executive_summary": executive_summary,
+        "best_starting_keyword": top_keyword["keyword"],
+        "strongest_cluster": strongest_cluster["name"],
+        "campaign_health": health,
+        "seo_risk": risk,
+        "first_sprint": first_sprint,
+        "business_impact": f"Estimated organic traffic forecast: {summary['forecast']:,} monthly visits if the cluster gains traction.",
+    }
 
 
 def build_ai_brief(seed, market, audience, content_goal, keywords):
@@ -255,19 +312,29 @@ def build_cloud_pipeline(keywords):
     ]
 
 
-def analyze_keywords(seed_keyword, market="Global", audience="Business decision makers", content_goal="Lead generation"):
-    seed = sanitize_seed(seed_keyword) or "seo strategy"
-    keywords = generate_keyword_rows(seed, market, audience, content_goal)
-    clusters = build_clusters(keywords)
-    ai_brief = build_ai_brief(seed, market, audience, content_goal, keywords)
-    cloud_pipeline = build_cloud_pipeline(keywords)
-
-    return {
-        "keywords": keywords,
-        "clusters": clusters,
-        "ai_brief": ai_brief,
-        "cloud_pipeline": cloud_pipeline,
-    }
+def build_security_panel(seed):
+    return [
+        {
+            "control": "Input Sanitization",
+            "status": "Active",
+            "detail": f"Seed keyword processed as: {seed.title()}"
+        },
+        {
+            "control": "No API Secrets In Repo",
+            "status": "Protected",
+            "detail": "Demo intelligence uses deterministic local scoring without stored provider credentials."
+        },
+        {
+            "control": "Cloud Deployment Readiness",
+            "status": "Planned",
+            "detail": "Future version can connect to managed hosting, secret vaulting, cloud databases, and rate limits."
+        },
+        {
+            "control": "Human Review Gate",
+            "status": "Designed",
+            "detail": "Commercial and transactional content is flagged for review before publishing automation."
+        },
+    ]
 
 
 def build_campaign_summary(analysis):
@@ -275,7 +342,7 @@ def build_campaign_summary(analysis):
     total_volume = sum(row["volume"] for row in keywords)
     avg_difficulty = round(sum(row["difficulty"] for row in keywords) / len(keywords))
     avg_opportunity = round(sum(row["opportunity_score"] for row in keywords) / len(keywords))
-    quick_wins = sum(1 for row in keywords if row["priority"] == "P1 Quick Win")
+    quick_wins = sum(1 for row in keywords if row["priority"] == "P1 Revenue-Ready Opportunity")
     forecast = sum(row["forecast_visits"] for row in keywords)
 
     return {
@@ -286,3 +353,25 @@ def build_campaign_summary(analysis):
         "quick_wins": quick_wins,
         "forecast": forecast,
     }
+
+
+def analyze_keywords(seed_keyword, market="Global", audience="Business decision makers", content_goal="Lead generation"):
+    seed = sanitize_seed(seed_keyword) or "seo strategy"
+    keywords = generate_keyword_rows(seed, market, audience, content_goal)
+    clusters = build_clusters(keywords)
+    base_summary = {
+        "forecast": sum(row["forecast_visits"] for row in keywords),
+    }
+
+    analysis = {
+        "keywords": keywords,
+        "clusters": clusters,
+        "ai_brief": build_ai_brief(seed, market, audience, content_goal, keywords),
+        "cloud_pipeline": build_cloud_pipeline(keywords),
+        "security_panel": build_security_panel(seed),
+    }
+
+    full_summary = build_campaign_summary(analysis)
+    analysis["campaign_recommendation"] = build_campaign_recommendation(seed, keywords, clusters, full_summary)
+
+    return analysis
