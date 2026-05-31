@@ -113,3 +113,10 @@ This project demonstrates:
 - Team review approvals
 - Publishing workflow automation
 - Deployment to a cloud platform
+
+---
+
+## Dashboard Preview
+
+![SearchOps SEO Intelligence Dashboard](docs/screenshots/searchops-seo-intelligence-dashboard.png)
+
